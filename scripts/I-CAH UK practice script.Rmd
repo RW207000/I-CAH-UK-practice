@@ -190,31 +190,16 @@ numbervisitsstats$visits_with_med_data <- medication_details %>%
 
 numbervisitsstats$visits_with_lab_data <- n_unique(labs$assessment_id)
 
-write.csv(numbervisitsstats, file = "outputs/numbervisitsstats_perfect.csv", row.names = F, na = "")
-
-# in medication raw data, some centreIDs are entered as times or dates which are NOT USEABLE... therefore, I have converted all centre ids in med frame to numbers and consequently will have lost some centres which have incorrect centre id formats.
-medication$Centre.ID <- as.numeric(medication$Centre.ID)
-
-med_entries_per_centre <- medication %>%
-  group_by(Centre.ID) %>%
-  summarise(n = n())
-
-# to see which medication records and centres have been lost:
-wrong_med_centreids <- medication$Centre.ID
-lost_med_records <- subset(participantsnoduplicates, !Centre.ID %in% wrong_med_centreids)
-lost_med_centres <- as.data.frame(unique( lost_med_records$Centre.ID))
-
-write.csv(lost_med_records, file = "outputs/lost_med_records_perfect.csv", row.names = F, na = "")
+write.csv(numbervisitsstats, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/numbervisitsstats.csv", row.names = F, na = "")
 ```
 
 let's next combine the  AE1, medication1, fludro1 and labs1 tables with the all visits
-
 ```{r : joining meds and ae}
-meds <- left_join(singletotalmedication, fludro, by = c("CO.ID", "assessment_id", "assessment_date"))
-medsandae <- left_join(meds, ae, by = c("CO.ID", "assessment_id", "assessment_date"))
+meds <- left_join(singletotalmedication, fludro, by = c("record_id", "assessment_id", "assessment_date"))
+medsandae <- left_join(meds, ae, by = c("record_id", "assessment_id", "assessment_date"))
 
 #make unique identifier in medsandae
-medsandae$coid_asse_date <- paste(medsandae$CO.ID, medsandae$assessment_date)
+medsandae$coid_asse_date <- paste(medsandae$record_id, medsandae$assessment_date)
 
 # removing all duplicated entries (based on coid_asse_date)
 medsandae_duplicates <- medsandae[duplicated(medsandae$coid_asse_date),]
@@ -225,7 +210,7 @@ medsandae <- subset(medsandae, !coid_asse_date %in% medsandae_entries_to_remove)
 # med_duplicates_check should now be empty
 medsandae_duplicates_check <- medsandae[duplicated(medsandae$coid_asse_date),]
 
-write.csv(medsandae, file = "outputs/medsandae_perfect.csv", row.names = F, na = "")
+write.csv(medsandae, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/medsandae.csv", row.names = F, na = "")
 ```
 
 ***********************
@@ -235,8 +220,8 @@ Let's start by cleaning medication data frame (units, typos, standardised doses)
 Create unique identifier of coid_asse_date
 ```{r : medication data frames}
 medication_clean <- medication
-medication_clean$coid_asse_date <- paste(medication_clean$CO.ID, medication_clean$assessment_date)
-medication_clean$coid_asse_id <- paste(medication_clean$CO.ID, medication_clean$assessment_id)
+medication_clean$coid_asse_date <- paste(medication_clean$record_id, medication_clean$assessment_date)
+medication_clean$coid_asse_id <- paste(medication_clean$record_id, medication_clean$assessment_id)
 
 # note column is always empty / "NULL", so remove it
 table(medication_clean$note)

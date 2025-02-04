@@ -81,7 +81,7 @@ Making a dataframe of the removed duplicate assessment entries
 toremove <- duplicateassessments$idvisitdate
 removedrecords <- subset(participants, coid_asse_date %in% toremove)
 
-write.csv(removedrecords, file = "outputs/removedrecords_perfect.csv", row.names = F, na = "")
+write.csv(removedrecords, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/removedrecords.csv", row.names = F, na = "")
 ```
 
 Because I've removed all duplicate assessment entries, we might have lost participant/s if their only entry is one of these removed duplicates.
@@ -91,16 +91,16 @@ We need to split apart the idvisitdate to get the CO.IDs isolated
 duplicateassessments$id <- sapply(strsplit(duplicateassessments$idvisitdate," "), `[`, 1)
 duplicateassessments$visitdate<- sapply(strsplit(duplicateassessments$idvisitdate," "), `[`, 2)
 
-toremovelostparticipants <- participantsnoduplicates$CO.ID
+toremovelostparticipants <- participantsnoduplicates$Register.ID...Record
 
 lostparticipants <- NA
-lostparticipants <- subset(participants, !CO.ID %in% toremovelostparticipants)
+lostparticipants <- subset(participants, !Register.ID...Record %in% toremovelostparticipants)
 
-write.csv(lostparticipants, file = "outputs/lostparticipants_perfect.csv", row.names = F, na = "")
+write.csv(lostparticipants, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/lostparticipants.csv", row.names = F, na = "")
 
 print("Due to duplications during data entry, we have lost")
-n_unique(lostparticipants$CO.ID)
-print("participants (because their only 'contributions' to the database have been removed")
+n_unique(lostparticipants$Register.ID...Record)
+print("participants (because their only 'contributions' to the database have been removed)")
 ```
 
 ```{r : making participantsnoduplicates}
@@ -112,7 +112,7 @@ freqcheck <- as.data.frame(freq(participantsnoduplicates$coid_asse_date))
 freqcheck <- rownames_to_column(freqcheck, var="idvisitdate")
 freqcheck <- freqcheck[freqcheck$idvisitdate != c("Total", "<NA>"),]
 
-write.csv(participantsnoduplicates, file = "outputs/participantsnoduplicates_perfect.csv", row.names = F, na = "")
+write.csv(participantsnoduplicates, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/participantsnoduplicates.csv", row.names = F, na = "")
 ```
 
 *************************************
@@ -122,7 +122,7 @@ Visit statistics
 This chunk groups the records by separate patients, and tells us how many visits they had. Then we take that long dataframe that has told us how many visits each of them have, and create some summary statistics to give us an idea of how many patients we have, and how many visits we have data for. 
 ```{r : visit stats}
 numbervisits <- participantsnoduplicates %>%
-  group_by(CO.ID) %>%
+  group_by(Register.ID...Record) %>%
   summarise(n=n())
 
 numbervisitsstats <- numbervisits %>%
@@ -137,28 +137,28 @@ numbervisitsstats <- numbervisits %>%
 
 ```{r : visits per centre}
 centrevisits <- participantsnoduplicates %>%
-  group_by(Centre.ID, Country...Centre) %>%
+  group_by(Centre.Name...Centre, Country...Centre) %>%
   summarise(number_of_visits = n())
 
-write.csv(centrevisits, "outputs/centrevisits_perfect.csv", row.names = F, na = "")
+write.csv(centrevisits, "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/centrevisits.csv", row.names = F, na = "")
 
 patientspercentre <- participantsnoduplicates %>%
-  group_by(Centre.ID) %>%
-  summarise(number_of_patients = n_unique(CO.ID))
+  group_by(Centre.Name...Centre) %>%
+  summarise(number_of_patients = n_unique(Register.ID...Record))
 
-write.csv(patientspercentre, "outputs/patientspercentre_perfect.csv", row.names = F, na = "")
+write.csv(patientspercentre, "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/patientspercentre.csv", row.names = F, na = "")
 
-centreparticipation <- left_join(centrevisits, patientspercentre, by="Centre.ID")
+centreparticipation <- left_join(centrevisits, patientspercentre, by="Centre.Name...Centre")
 
-write.csv(centreparticipation, "outputs/centreparticipation_perfect.csv", row.names = F, na = "")
+write.csv(centreparticipation, "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/centreparticipation.csv", row.names = F, na = "")
 
 countryvisits <- participantsnoduplicates %>%
   group_by(Country...Centre) %>%
-  summarise(number_of_centres = n_unique(Centre.ID),
+  summarise(number_of_centres = n_unique(Centre.Name...Centre),
             number_of_visits = n(),
-            number_of_patients = n_unique(CO.ID))
+            number_of_patients = n_unique(Register.ID...Record))
 
-write.csv(countryvisits, "outputs/countryparticipation_perfect.csv", row.names = F, na = "")
+write.csv(countryvisits, "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/countryparticipation.csv", row.names = F, na = "")
 ```
 
 ***********************

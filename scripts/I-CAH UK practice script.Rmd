@@ -628,6 +628,6 @@ I_CAH_UK_dataduplications <- I_CAH_UK_data[duplicated(I_CAH_UK_data$coid_asse_da
 ```
 
 ```{r : writing final table - I_CAH_UK_data}
-write.csv(I_CAH_UK_data, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/UK-data.csv", row.names = F, na = "")
+write.csv(I_CAH_UK_data, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/I_CAH_UK_data.csv", row.names = F, na = "")
 ```
 

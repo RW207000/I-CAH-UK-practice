@@ -1,0 +1,17 @@
+---
+title: "I-CAH UK practice"
+author: "R.Welch"
+date: "2025-02-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+libraries
+```{r : reading libraries, include= FALSE}
+packages <- c("tidyverse", "readxl", "dplyr", "magrittr", "mixtools", "emmeans", "readr","data.table", "lubridate", "ggplot2", "magrittr", "skimr", "ggstatsplot","summarytools", "knitr", "here", "ggthemes", "ggthemes", "Amelia", "tidyr", "naniar", "stringr")
+
+lapply(packages, library, character.only = TRUE)
+```

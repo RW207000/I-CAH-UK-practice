@@ -1,4 +1,5 @@
 
 .Rproj.user/
 
+# ignore data folder
 data/

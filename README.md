@@ -1,3 +1,2 @@
 # I-CAH-UK-practice
-let's see
-now what
+Code for analysing I-CAH UK data

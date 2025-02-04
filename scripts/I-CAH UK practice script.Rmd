@@ -26,15 +26,15 @@ lapply(packages, library, character.only = TRUE)
 ```{r : reading in data}
 # data <- read.csv("data/THe perfect processed clean I-CAh table.csv", header=T, na.strings="")
 
-participants <- read.csv("data/CO-ID_202311_NK longitudinal data 02.09.24.csv", header=T, na.strings="")
+participants <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/data/STUDY 202203_NK data extraction 10.3.24.csv", header=T, na.strings="")
 
-ae <- read.csv("data/CO-ID_202311_NK AE 02.09.24.csv", header=T, na.strings="")
+ae <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/data/AE with cname, dob, visitdate UK 12.3.24.csv", header=T, na.strings="")
 
-medication <- read.csv("data/CO-ID_202311_NK Meds 02.09.24.csv", header=T, na.strings="NULL")
+medication <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/data/Meds with cname, dob, visitdate UK 12.3.24.csv", header=T, na.strings="NULL")
 
-fludro <- read.csv("data/CO-ID_202311_NK Fludro 02.09.24.csv", header=T, na.strings="NULL")
+fludro <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/data/Fludro with cname, dob, visitdate UK 12.3.24.csv", header=T, na.strings="NULL")
 
-labs <- read.csv("data/CO-ID_202311_NK Labs 02.09.24.csv", header=T, na.strings="NULL")
+labs <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/data/Labs with cname, dob, visitdate UK 12.3.24.csv", header=T, na.strings="NULL")
 ```
 
 *********************************
@@ -43,7 +43,7 @@ labs <- read.csv("data/CO-ID_202311_NK Labs 02.09.24.csv", header=T, na.strings=
 
 Making unique identifier for each assessment by combining co-id and assessment date.
 ```{r : making new unique identifier}
-participants$coid_asse_date <- paste(participants$CO.ID, participants$Date...CAH.Longitudinal.Data)
+participants$coid_asse_date <- paste(participants$Register.ID...Record, participants$Date...CAH.Longitudinal.Data)
 ```
 
 Checking for any duplicate entries (i.e.: any duplicates in the newly made unique identifier).

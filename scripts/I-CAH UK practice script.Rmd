@@ -286,62 +286,65 @@ table(medication_clean$unit)
 ```
 
 ```{r : check units for dexamethasone - DO SEPARATELY FOR EACH ANALYSIS}
-dex_subset <- subset(medication_clean, medicine == "dexamethasone")
-max(dex_subset$dose, na.rm = T)
-# ^ shows values of 250 (i.e OVER 10) which is TOO HIGH, therefore it's likely that these values are indeed in mcg, therefore we need to manually change these.
+#FOR 12.3.24 DATA, NO DEXAMETHASONE WAS IN DATASET SO THIS SECTION HAS BEEN SKIPPED.
 
-dex_HIGH_values <- subset(dex_subset, dose >10)
-# ^ shows high dex values which need to be manually changed - need to be * 1000.
+# dex_subset <- subset(medication_clean, medicine == "dexamethasone")
+# max(dex_subset$dose, na.rm = T)
+# # ^ shows values of 250 (i.e OVER 10) which is TOO HIGH, therefore it's likely that these values are indeed in mcg, therefore we need to manually change these.
+# 
+# dex_HIGH_values <- subset(dex_subset, dose >10)
+# # ^ shows high dex values which need to be manually changed - need to be * 1000.
+# 
+# medication_clean$dose <-
+#   ifelse(medication_clean$coid_asse_id == "19157E 14782" & medication_clean$hours_through_day == 17,
+#         as.numeric(medication_clean$dose) / 1000,
+#         as.numeric(medication_clean$dose))
+# 
+# medication_clean$dose <-
+#   ifelse(medication_clean$coid_asse_id == "56050E 1734",
+#         as.numeric(medication_clean$dose) / 1000,
+#         as.numeric(medication_clean$dose))
+# 
+# medication_clean$dose <-
+#   ifelse(medication_clean$coid_asse_id == "59565E 16733" & medication_clean$medicine == "dexamethasone",
+#         as.numeric(medication_clean$dose) / 1000,
+#         as.numeric(medication_clean$dose))
+# 
+# medication_clean$dose <-
+#   ifelse(medication_clean$coid_asse_id == "27380E 16997" & medication_clean$medicine == "dexamethasone",
+#         as.numeric(medication_clean$dose) / 1000,
+#         as.numeric(medication_clean$dose))	
+# 
+# medication_clean$dose <-
+#   ifelse(medication_clean$coid_asse_id == "18021E 21449" & medication_clean$medicine == "dexamethasone",
+#         as.numeric(medication_clean$dose) / 1000,
+#         as.numeric(medication_clean$dose))
 
-medication_clean$dose <-
-  ifelse(medication_clean$coid_asse_id == "19157E 14782" & medication_clean$hours_through_day == 17,
-        as.numeric(medication_clean$dose) / 1000,
-        as.numeric(medication_clean$dose))
-
-medication_clean$dose <-
-  ifelse(medication_clean$coid_asse_id == "56050E 1734",
-        as.numeric(medication_clean$dose) / 1000,
-        as.numeric(medication_clean$dose))
-
-medication_clean$dose <-
-  ifelse(medication_clean$coid_asse_id == "59565E 16733" & medication_clean$medicine == "dexamethasone",
-        as.numeric(medication_clean$dose) / 1000,
-        as.numeric(medication_clean$dose))
-
-medication_clean$dose <-
-  ifelse(medication_clean$coid_asse_id == "27380E 16997" & medication_clean$medicine == "dexamethasone",
-        as.numeric(medication_clean$dose) / 1000,
-        as.numeric(medication_clean$dose))	
-
-medication_clean$dose <-
-  ifelse(medication_clean$coid_asse_id == "18021E 21449" & medication_clean$medicine == "dexamethasone",
-        as.numeric(medication_clean$dose) / 1000,
-        as.numeric(medication_clean$dose))
-
-
-# once manual adjustments of dex values have been made, run these lines - 'dex_HIGH_values' should now be empty and max dex dose should be less than 10!
-dex_subset <- subset(medication_clean, medicine == "dexamethasone")
-dex_HIGH_values <- subset(dex_subset, dose >10)
-dex_HIGH_values
-max(dex_subset$dose, na.rm = T)
+# 
+# # once manual adjustments of dex values have been made, run these lines - 'dex_HIGH_values' should now be empty and max dex dose should be less than 10!
+# dex_subset <- subset(medication_clean, medicine == "dexamethasone")
+# dex_HIGH_values <- subset(dex_subset, dose >10)
+# dex_HIGH_values
+# max(dex_subset$dose, na.rm = T)
 ```
-```{r : adding in hc equivalents}
+
+```{r : adding in HC equivalents}
 # this table shows how many records of each medication are present (bare in mind one participant can have multiple records)
 table(medication_clean$medicine)
 
 medication_clean$HC_equivalent <- NA
 
 prednisoloneratio <- 5
-dexamethasoneratio <- 80
+# dexamethasoneratio <- 80
 
 medication_clean$HC_equivalent <- 
-  ifelse(medication_clean$medicine == "hydrocortisone", medication$dose, NA)
+  ifelse(medication_clean$medicine == "hydrocortisone", medication_clean$dose, NA)
 
 medication_clean$HC_equivalent <- 
   ifelse(medication_clean$medicine == "prednisolone", (as.numeric(medication_clean$dose) * prednisoloneratio), medication_clean$HC_equivalent)
 
-medication_clean$HC_equivalent <- 
-  ifelse(medication_clean$medicine == "dexamethasone", (as.numeric(medication_clean$dose) * dexamethasoneratio), medication_clean$HC_equivalent)
+# medication_clean$HC_equivalent <- 
+#   ifelse(medication_clean$medicine == "dexamethasone", (as.numeric(medication_clean$dose) * dexamethasoneratio), medication_clean$HC_equivalent)
 
 # let's double check the HC equivalent values seem sensible. You'll have a better idea than me of what is sensible here!
 checkmedstats <- medication_clean %>%
@@ -353,7 +356,6 @@ checkmedstats <- medication_clean %>%
             max_dose = max(HC_equivalent, na.rm = TRUE)) %>%
   mutate_if(is.numeric, ~round(., 2))
 ```
-
 
 BSA is present in 'participants' frame.
 ```{r : adding HC/bsa and fludro/bsa}
@@ -372,8 +374,6 @@ medication_clean$fludro_per_bsa <- medication_clean$fludrocortisone_dose / parti
 
 medication_clean$fludro_per_bsa <- round(medication_clean$fludro_per_bsa, digits = 2)
 ```
-
-
 
 Checking that there are no duplicated assessment ids for different dates (note: can have same asse id on same date)
 ```{r : checking duplicate assessment dates}
@@ -399,7 +399,7 @@ medication_clean$GC_dose <- medication_clean$dose
 
 ```{r : sequence along entries}
 medication_clean$assessment_entry <-
-  ave(medication_clean$CO.ID,
+  ave(medication_clean$record_id,
       medication_clean$assessment_id,
       FUN = seq_along)
 ```
@@ -472,60 +472,60 @@ colnames(medication_clean_6th_entry) <-
 
 
 medication_clean_1st_entry <- medication_clean_1st_entry %>%
-  rename("CO.ID" = "CO.ID_1",
+  rename("record_id" = "record_id_1",
          "assessment_id" = "assessment_id_1",
          "meds_assessment_date" = "assessment_date_1")
 
 medication_clean_2nd_entry <- medication_clean_2nd_entry %>%
-  rename("CO.ID" = "CO.ID_2",
+  rename("record_id" = "record_id_2",
          "assessment_id" = "assessment_id_2",
          "meds_assessment_date" = "assessment_date_2")
 
 medication_clean_3rd_entry <- medication_clean_3rd_entry %>%
-  rename("CO.ID" = "CO.ID_3",
+  rename("record_id" = "record_id_3",
          "assessment_id" = "assessment_id_3",
          "meds_assessment_date" = "assessment_date_3")
 
 medication_clean_4th_entry <- medication_clean_4th_entry %>%
-  rename("CO.ID" = "CO.ID_4",
+  rename("record_id" = "record_id_4",
          "assessment_id" = "assessment_id_4",
          "meds_assessment_date" = "assessment_date_4")
 
 medication_clean_5th_entry <- medication_clean_5th_entry %>%
-  rename("CO.ID" = "CO.ID_5",
+  rename("record_id" = "record_id_5",
          "assessment_id" = "assessment_id_5",
          "meds_assessment_date" = "assessment_date_5")
 
 medication_clean_6th_entry <- medication_clean_6th_entry %>%
-  rename("CO.ID" = "CO.ID_6",
+  rename("record_id" = "record_id_6",
          "assessment_id" = "assessment_id_6",
          "meds_assessment_date" = "assessment_date_6")
 ```
 
 ```{r : joining widened med frames together}
 meds_wide <- medication_clean_1st_entry %>%
-  left_join(medication_clean_2nd_entry, by=c("CO.ID", "assessment_id", "meds_assessment_date")) %>%
-  left_join(medication_clean_3rd_entry, by=c("CO.ID", "assessment_id", "meds_assessment_date")) %>%
-  left_join(medication_clean_4th_entry, by=c("CO.ID", "assessment_id", "meds_assessment_date")) %>%
-  left_join(medication_clean_5th_entry, by=c("CO.ID", "assessment_id", "meds_assessment_date")) %>%
-  left_join(medication_clean_6th_entry, by=c("CO.ID", "assessment_id", "meds_assessment_date"))
+  left_join(medication_clean_2nd_entry, by=c("record_id", "assessment_id", "meds_assessment_date")) %>%
+  left_join(medication_clean_3rd_entry, by=c("record_id", "assessment_id", "meds_assessment_date")) %>%
+  left_join(medication_clean_4th_entry, by=c("record_id", "assessment_id", "meds_assessment_date")) %>%
+  left_join(medication_clean_5th_entry, by=c("record_id", "assessment_id", "meds_assessment_date")) %>%
+  left_join(medication_clean_6th_entry, by=c("record_id", "assessment_id", "meds_assessment_date"))
 
 # adding in single total medication
-meds_all <- left_join(meds_wide, singletotalmedication, by = c("CO.ID", "assessment_id"))
+meds_all <- left_join(meds_wide, singletotalmedication, by = c("record_id", "assessment_id"))
 
-write.csv(meds_wide, file = "outputs/meds_wide_perfect.csv", row.names = F, na = "")
+write.csv(meds_wide, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/meds_wide_perfect.csv", row.names = F, na = "")
 ```
 
 Subset dataframes
 
 ```{r : subsetting meds_wide}
-meds_wide_subset <- subset(meds_wide, select = c("Centre.ID_1", "CO.ID", "assessment_id", "meds_assessment_date", "coid_asse_id_1", "coid_asse_date_1",
-                                                 "medicine_1", "dose_1", "hours_through_day_1", "HC_equivalent_1", "HC_per_bsa_1", "fludrocortisone_dose_1", "fludro_per_bsa_1",
-                                                 "medicine_2", "dose_2", "hours_through_day_2", "HC_equivalent_2", "HC_per_bsa_2", "fludrocortisone_dose_2", "fludro_per_bsa_2",
-                                                 "medicine_3", "dose_3", "hours_through_day_3", "HC_equivalent_3", "HC_per_bsa_3", "fludrocortisone_dose_3", "fludro_per_bsa_3",
-                                                 "medicine_4", "dose_4", "hours_through_day_4", "HC_equivalent_4", "HC_per_bsa_4", "fludrocortisone_dose_4", "fludro_per_bsa_4",
-                                                 "medicine_5", "dose_5", "hours_through_day_5", "HC_equivalent_5", "HC_per_bsa_5", "fludrocortisone_dose_5", "fludro_per_bsa_5",
-                                                 "medicine_6", "dose_6", "hours_through_day_6", "HC_equivalent_6", "HC_per_bsa_6", "fludrocortisone_dose_6", "fludro_per_bsa_6"))
+meds_wide_subset <- subset(meds_wide, select = c("centreName_1", "record_id", "assessment_id", "meds_assessment_date", "coid_asse_id_1", "coid_asse_date_1",
+"medicine_1", "dose_1", "hours_through_day_1", "HC_equivalent_1", "HC_per_bsa_1", "fludrocortisone_dose_1", "fludro_per_bsa_1",
+"medicine_2", "dose_2", "hours_through_day_2", "HC_equivalent_2", "HC_per_bsa_2", "fludrocortisone_dose_2", "fludro_per_bsa_2",
+"medicine_3", "dose_3", "hours_through_day_3", "HC_equivalent_3", "HC_per_bsa_3", "fludrocortisone_dose_3", "fludro_per_bsa_3",
+"medicine_4", "dose_4", "hours_through_day_4", "HC_equivalent_4", "HC_per_bsa_4", "fludrocortisone_dose_4", "fludro_per_bsa_4",
+"medicine_5", "dose_5", "hours_through_day_5", "HC_equivalent_5", "HC_per_bsa_5", "fludrocortisone_dose_5", "fludro_per_bsa_5",
+"medicine_6", "dose_6", "hours_through_day_6", "HC_equivalent_6", "HC_per_bsa_6", "fludrocortisone_dose_6", "fludro_per_bsa_6"))
 
 meds_wide_subset <- meds_wide_subset %>%
   rename("coid_asse_date" = "coid_asse_date_1")
@@ -538,7 +538,7 @@ meds_wide_subset <- subset(meds_wide_subset, !coid_asse_date %in% med_entries_to
 # med_duplicates_check should now be empty
 med_duplicates_check <- meds_wide_subset[duplicated(meds_wide_subset$coid_asse_date),]
 
-write.csv(meds_wide_subset, file = "outputs/meds_wide_subset_perfect.csv", row.names = F, na = "")
+write.csv(meds_wide_subset, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/meds_wide_subset_perfect.csv", row.names = F, na = "")
 ```
 
 ***********************

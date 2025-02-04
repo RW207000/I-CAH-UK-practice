@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ---
-title: "The perfect processed clean I-CAH data"
+title: "The perfect processed clean I-CAH-UK data"
 author: "R.Welch"
 date: "2025-01-07"
 output: html_document
@@ -24,8 +24,6 @@ lapply(packages, library, character.only = TRUE)
 ```
 
 ```{r : reading in data}
-# data <- read.csv("data/THe perfect processed clean I-CAh table.csv", header=T, na.strings="")
-
 participants <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/data/STUDY 202203_NK data extraction 10.3.24.csv", header=T, na.strings="")
 
 ae <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/data/AE with cname, dob, visitdate UK 12.3.24.csv", header=T, na.strings="")
@@ -513,7 +511,7 @@ meds_wide <- medication_clean_1st_entry %>%
 # adding in single total medication
 meds_all <- left_join(meds_wide, singletotalmedication, by = c("record_id", "assessment_id"))
 
-write.csv(meds_wide, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/meds_wide_perfect.csv", row.names = F, na = "")
+write.csv(meds_wide, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/meds_wide.csv", row.names = F, na = "")
 ```
 
 Subset dataframes
@@ -538,7 +536,7 @@ meds_wide_subset <- subset(meds_wide_subset, !coid_asse_date %in% med_entries_to
 # med_duplicates_check should now be empty
 med_duplicates_check <- meds_wide_subset[duplicated(meds_wide_subset$coid_asse_date),]
 
-write.csv(meds_wide_subset, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/meds_wide_subset_perfect.csv", row.names = F, na = "")
+write.csv(meds_wide_subset, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/meds_wide_subset.csv", row.names = F, na = "")
 ```
 
 ***********************
@@ -548,18 +546,6 @@ Joining lab to participants
 ```{r : making labs wide, include=FALSE}
 # editing lab dataframe to use it here
 labs[labs == "NULL"] <- NA
-
-# noticed some errors in centre.ids (e.g.: centre 180 in participants is 18000% in labs... let's correct this!)
-
-labs$Centre.ID <-
-  ifelse(labs$Centre.ID == "18000%" | labs$Centre.ID == "18000.00%",
-         as.character(180),
-         as.character(labs$Centre.ID))
-
-
-labs$Centre.ID <- ifelse(labs$Centre.ID == "18200.00%",
-                         as.character(182),
-                         as.character(labs$Centre.ID))
 
 labsvalues <- subset(labs, select = -c(result, date_and_time))
 
@@ -574,20 +560,18 @@ labsinterp <- labsinterp %>%
   pivot_wider(names_from = "labs_type",
               values_from = "result")
 
-labs_wide <- left_join(labsvalues, labsinterp, by = c("CO.ID", "assessment_id", "assessment_date", "Centre.ID"))
+labs_wide <- left_join(labsvalues, labsinterp, by = c("record_id", "assessment_id", "assessment_date", "centreName"))
 
 names(labs_wide) <- gsub(x = names(labs_wide), pattern = ".x",
                         replacement = ".value")
 names(labs_wide) <- gsub(x = names(labs_wide), pattern = ".y",
                         replacement = ".interpretation")
 
-labs_wide$Centre.ID <-as.numeric(labs_wide$Centre.ID)
-
-labs_wide$coid_asse_date <- paste(labs_wide$CO.ID, labs_wide$assessment_date)
-labs_wide$coid_asse_id <- paste(labs_wide$CO.ID, labs_wide$assessment_id)
+labs_wide$coid_asse_date <- paste(labs_wide$record_id, labs_wide$assessment_date)
+labs_wide$coid_asse_id <- paste(labs_wide$record_id, labs_wide$assessment_id)
 
 # only interested in a subset of lab results - only want 17OHP and andostrodione
-labs_wide_subset <- select(labs_wide, c("CO.ID", "assessment_date", "coid_asse_date", "ohp17.value", "ohp17.interpretation", "andostenedione.value", "andostenedione.interpretation"))
+labs_wide_subset <- select(labs_wide, c("record_id", "assessment_date", "coid_asse_date", "ohp17.value", "ohp17.interpretation", "andostenedione.value", "andostenedione.interpretation"))
 
 # removing all duplicated entries (based on coid_asse_date)
 lab_duplicates <- labs_wide_subset[duplicated(labs_wide_subset$coid_asse_date),]
@@ -597,10 +581,8 @@ labs_wide_subset <- subset(labs_wide_subset, !coid_asse_date %in% lab_entries_to
 # lab_duplicates_check should now be empty
 lab_duplicates_check <- labs_wide_subset[duplicated(labs_wide_subset$coid_asse_date),]
 
-
 labs_wide_subset_for_export <- apply(labs_wide_subset, 2, as.character)
-write.csv(labs_wide_subset_for_export, file = "outputs/labs_wide_subset_perfect.csv", row.names = F, na = "")
-
+write.csv(labs_wide_subset_for_export, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/labs_wide_subset.csv", row.names = F, na = "")
 ```
 
 
@@ -614,34 +596,38 @@ rm(list=ls())
 
 Re-read these files back into cleaned environment
 ```{r : re-reading files in to clear environment}
-participantsnoduplicates <- read.csv("outputs/participantsnoduplicates_perfect.csv", header=T, na.strings="")
-meds_wide_subset <- read.csv("outputs/meds_wide_subset_perfect.csv", header=T, na.strings="")
-labs_wide_subset <- read.csv("outputs/labs_wide_subset_perfect.csv", header=T, na.strings="")
-medsandae <- read.csv("outputs/medsandae_perfect.csv", header=T, na.strings="")
+participantsnoduplicates <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/participantsnoduplicates.csv", header=T, na.strings="")
+meds_wide_subset <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/meds_wide_subset.csv", header=T, na.strings="")
+labs_wide_subset <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/labs_wide_subset.csv", header=T, na.strings="")
+medsandae <- read.csv("C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/medsandae.csv", header=T, na.strings="")
 ```
 
-```{r : making icahalldata, include= FALSE}
-# join medsandae
-icahdata <- left_join(participantsnoduplicates, medsandae, by=c("CO.ID", "coid_asse_date"))
+```{r : making UK compiled data, include= FALSE}
+# rename record id in participantsnoduplicates to permit joining simply
+participantsnoduplicates <- participantsnoduplicates %>%
+  rename("record_id" = "Register.ID...Record")
 
-icahdata$visit_date <- icahdata$Date...CAH.Longitudinal.Data
-icahdata$Age_at_visit <- icahdata$Age.at.assessment
-icahdata$BSA <- icahdata$BSA...CAH.Longitudinal.Data
+# join medsandae
+I_CAH_UK_data <- left_join(participantsnoduplicates, medsandae, by=c("record_id", "coid_asse_date"))
+
+I_CAH_UK_data$visit_date <- I_CAH_UK_data$Date...CAH.Longitudinal.Data
+I_CAH_UK_data$Age_at_visit <- I_CAH_UK_data$Age.at.assessment
+I_CAH_UK_data$BSA <- I_CAH_UK_data$BSA...CAH.Longitudinal.Data
 
 # join meds_wide_subset
-icahdata <- left_join(icahdata, meds_wide_subset, by = c("CO.ID", "coid_asse_date"))
+I_CAH_UK_data <- left_join(I_CAH_UK_data, meds_wide_subset, by = c("record_id", "coid_asse_date"))
 
 # join labs_wide_subset
-icahdata <- left_join(icahdata, labs_wide_subset, by = c("CO.ID", "coid_asse_date"))
+I_CAH_UK_data <- left_join(I_CAH_UK_data, labs_wide_subset, by = c("record_id", "coid_asse_date"))
 ```
 
-```{r : checking duplications in icahdata}
+```{r : checking duplications in I_CAH_UK_data}
 # let's see which rows are duplications
 # this data frame should be empty!
-icahduplications <- icahdata[duplicated(icahdata$coid_asse_date),]
+I_CAH_UK_dataduplications <- I_CAH_UK_data[duplicated(I_CAH_UK_data$coid_asse_date),]
 ```
 
-```{r : writing final table - icahdata}
-write.csv(icahdata, file = "outputs/icahdata_perfect.csv", row.names = F, na = "")
+```{r : writing final table - I_CAH_UK_data}
+write.csv(I_CAH_UK_data, file = "C:/Users/md1rwe/Documents/R work/I-CAH UK practice/I-CAH-UK-practice/outputs/UK-data.csv", row.names = F, na = "")
 ```
 

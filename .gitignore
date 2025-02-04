@@ -5,4 +5,4 @@
 data/
 
 #ignore outputs folder
-outputs/
+.outputs/
